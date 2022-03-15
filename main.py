@@ -38,6 +38,7 @@ import sklearn
 from sklearn.model_selection import KFold
 import scipy.stats as stats
 import os
+
 # from nltk.corpus import stopwords
 import re
 from collections import Counter
@@ -129,6 +130,7 @@ import warnings
 import xgboost
 import catboost
 import lightgbm
+
 warnings.filterwarnings("ignore")
 pd.set_option("display.precision", 2)
 pd.set_option("display.float_format", lambda x: "%.2f" % x)
@@ -549,10 +551,12 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
             shuffle=True,
             random_state=42,
         )
-        cv = CountVectorizer(analyzer="word", stop_words="english").fit(X_train)
-        bow = cv.transform(X_train)
-        tfidf = TfidfTransformer().fit(bow)
-        tfidf.transform(bow)
+        # cv = CountVectorizer(analyzer= "word", stop_words="english").fit(X_train)
+        # bow = cv.transform(X_train)
+        # X_train = cv.transform(X_train)
+        # X_test = cv.transform(X_test)
+        # tfidf = TfidfTransformer().fit(bow)
+        # tfidf.transform(bow)
         tf_idf_vec = TfidfVectorizer()
         X_train = tf_idf_vec.fit_transform(X_train)
         X_test = tf_idf_vec.transform(X_test)
@@ -594,12 +598,12 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
         for name, dataset in dfs.items():
             if name == dataset_name:
                 # bow and tfidf for dataset
-                cv = CountVectorizer(analyzer="word", stop_words="english").fit(
-                    X_train
-                )
-                bow = cv.transform(X_train)
-                tfidf = TfidfTransformer().fit(bow)
-                tfidf.transform(bow)
+                # cv = CountVectorizer(analyzer= "word", stop_words="english").fit(X_train)
+                # bow = cv.transform(X_train)
+                # X_train = cv.transform(X_train)
+                # X_test = cv.transform(X_test)
+                # tfidf = TfidfTransformer().fit(bow)
+                # tfidf.transform(bow)
                 tf_idf_vec = TfidfVectorizer()
                 X_train = tf_idf_vec.fit_transform(X_train)
                 X_test = tf_idf_vec.transform(X_test)
@@ -611,7 +615,7 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
                 return dataset
 
     def models_cv(X, y, name, clf, k_fold):
-        """train and test model with different ML models without cross validation
+        """train and test model with different ML models with cross validation
         (based on best models from models_test).
 
         Args:
@@ -937,9 +941,9 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
     # Load data after preprocessing
     print("Loading data...")
     x, y, vocabs, vocab_invariant = dataset_loader()
-    x = keras.preprocessing.sequence.pad_sequences(
-        x, maxlen=sentence_len, truncating="post", padding="post"
-    )
+    # x = keras.preprocessing.sequence.pad_sequences(
+    #     x, maxlen=sentence_len, truncating="post", padding="post"
+    # )
 
     # min_max_scaler = preprocessing.MinMaxScaler()
     # x = min_max_scaler.fit_transform(x)
