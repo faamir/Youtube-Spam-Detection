@@ -170,12 +170,12 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
     ax.set(xlabel="all_df", ylabel="Count")
     plt.show()
 
-    # plot distplot show count vs classes for all dataframes
+    # plot distplot show length vs classes for all dataframes
     # data is balanced between two classes
     for name, data in dfs.items():
         plt.figure()
         ax = sns.distplot(data["CLASS"], bins=4, kde=False)
-        ax.set(xlabel=name, ylabel="Count")
+        ax.set(xlabel=name, ylabel="Length")
         plt.show()
 
     # Plot relationship between author and classes for all_df dataframe
@@ -494,7 +494,7 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
 
     best_model = []
 
-    def models_test(X_train, X_test, y_train, y_test, name, base, clf):
+    def models_selection(X_train, X_test, y_train, y_test, name, base, clf):
         """train and test model with different ML models without cross validation.
 
         Args:
@@ -561,7 +561,7 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
         X_train = tf_idf_vec.fit_transform(X_train)
         X_test = tf_idf_vec.transform(X_test)
         print("Data Set:", name)
-        best_model = models_test(
+        best_model = models_selection(
             X_train.toarray(),
             X_test.toarray(),
             np.array(y_train),
@@ -616,7 +616,7 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
 
     def models_cv(X, y, name, clf, k_fold):
         """train and test model with different ML models with cross validation
-        (based on best models from models_test).
+        (based on best models from models_selection).
 
         Args:
             X (numpy ndarray): X data
@@ -758,7 +758,7 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
     # count word frequency for dataset
     word_frequency = {}
 
-    def word_frequncy_maker(col):
+    def tokenizer_df(col):
         """create word frequency
 
         Args:
@@ -812,7 +812,7 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
         """
         datasetx = dataset
         datasetx["CONTENT"] = datasetx.apply(remove_numerics, axis=1)
-        datasetx["tokenize"] = datasetx.apply(word_frequncy_maker, axis=1)
+        datasetx["tokenize"] = datasetx.apply(tokenizer_df, axis=1)
         # print ("dataset head in received", datasetx.head())
         n = []
         for i in datasetx["tokenize"]:
@@ -834,10 +834,8 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
         if len(i[0]) <= sentence_len and len(i[0]) >= 1:
             list_all.append([i[0], i[1]])
 
-            # print (len(i[0]))
         elif len(i[0]) > sentence_len:
             tmp = " ".join(i[0].split()[0:sentence_len])
-            # tmp=tmp[:200]
             list_all.append([tmp, i[1]])
 
     # print("length of list and dataset in received func", len(list_all),len(dataset))
@@ -859,15 +857,14 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
         # Split by words
         x_all = dataset["CONTENT"].to_numpy()
         x_all = [string_cleaner(sent) for sent in x_all]
-        print(
-            "x_test from 0 to 1 in load_x_y func: ", x_all[0]
-        )  # simply 2 sentences from datasetset which cleaned
+        # print(
+        #     "x_test  ", x_all[0]
+        # )
         x_all = [s.split(" ") for s in x_all]
 
         y_all = dataset["CLASS"].to_numpy()
         return [x_all, y_all]
 
-    load_x_y()
     # pad all sentences in case all sentences have the same length
     sentences_length = sentence_len
 
@@ -929,14 +926,12 @@ def main(Psy_df, KatyPerry_df, LMFAO_df, Eminem_df, Shakira_df, dl_model):
         """
         sequences, labels = load_x_y()
 
-        print("x sequences 0 to 1 raw: ", sequences[0])
+        print("x sequence 0 : ", sequences[0])
         sentences_padded = padding(sequences)
         # print("x sequences 0 to 1 after padding (sequence length): ", sequences_padded[0:2])
         vocabs, vocab_invariant = vocab_builder(sentences_padded)
         x, y = mapper(sentences_padded, labels, vocabs)
         return [x, y, vocabs, vocab_invariant]
-
-    dataset_loader()
 
     # Load data after preprocessing
     print("Loading data...")
